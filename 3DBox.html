@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🔥 3D Physics Game w/ Score</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(-45deg, #1e293b, #0f172a, #334155, #1e293b);
+      background-size: 400% 400%;
+      animation: gradientShift 10s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    #scoreDisplay {
+      transition: transform 0.2s ease;
+      color: white;
+    }
+
+    canvas {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="scoreDisplay" class="absolute top-4 right-4 bg-black/70 text-white font-bold text-lg px-4 py-2 rounded-xl shadow-xl z-10 border border-white/30">
+    💎 Score: 0
+  </div>
+  <canvas id="gameCanvas"></canvas>
+
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.module.js';
+    import * as CANNON from 'https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js';
+
+    let score = 0;
+    const updateScore = (pts = 1) => {
+      score += pts;
+      const scoreEl = document.getElementById('scoreDisplay');
+      scoreEl.innerText = `💎 Score: ${score}`;
+      scoreEl.style.transform = 'scale(1.1)';
+      setTimeout(() => scoreEl.style.transform = 'scale(1)', 150);
+    };
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gameCanvas'), antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    const world = new CANNON.World();
+    world.gravity.set(0, -9.82, 0);
+    const material = new CANNON.Material();
+
+    const frameWidth = 20, frameHeight = 30, depth = 10, thickness = 1;
+
+    const createWall = (x, y, z, sx, sy, sz, color = 0x00ffff, opacity = 0.1) => {
+      const shape = new CANNON.Box(new CANNON.Vec3(sx, sy, sz));
+      const body = new CANNON.Body({ mass: 0, shape });
+      body.position.set(x, y, z);
+      world.addBody(body);
+
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(sx * 2, sy * 2, sz * 2),
+        new THREE.MeshStandardMaterial({ color, transparent: true, opacity })
+      );
+      mesh.position.set(x, y, z);
+      scene.add(mesh);
+    };
+
+    // Bounding frame
+    createWall(0, frameHeight / 2, -depth, frameWidth, frameHeight / 2, thickness);
+    createWall(0, frameHeight / 2, depth, frameWidth, frameHeight / 2, thickness);
+    createWall(-frameWidth, frameHeight / 2, 0, thickness, frameHeight / 2, depth);
+    createWall(frameWidth, frameHeight / 2, 0, thickness, frameHeight / 2, depth);
+    createWall(0, 0, 0, frameWidth, thickness, depth);
+    createWall(0, frameHeight, 0, frameWidth, thickness, depth);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(10, 20, 15);
+    scene.add(light);
+
+    const objects = [];
+    const rand = () => Math.random() * 16 - 8;
+    const randColor = () => new THREE.Color(Math.random(), Math.random(), Math.random());
+
+    const createObject = (shape, geometry, position, color = 0xffffff) => {
+      const body = new CANNON.Body({ mass: 1, shape, material });
+      body.position.copy(position);
+      world.addBody(body);
+
+      const mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color }));
+      scene.add(mesh);
+      objects.push({ body, mesh, color });
+    };
+
+    for (let i = 0; i < 6; i++) {
+      createObject(
+        new CANNON.Box(new CANNON.Vec3(2, 2, 2)),
+        new THREE.BoxGeometry(4, 4, 4),
+        new CANNON.Vec3(rand(), 5 + Math.random() * 15, rand()),
+        randColor()
+      );
+    }
+
+    for (let i = 0; i < 3; i++) {
+      createObject(
+        new CANNON.Sphere(2),
+        new THREE.SphereGeometry(2, 32, 32),
+        new CANNON.Vec3(rand(), 10 + Math.random() * 10, rand()),
+        randColor()
+      );
+    }
+
+    for (let i = 0; i < 2; i++) {
+      createObject(
+        new CANNON.Cylinder(1, 2, 4, 6),
+        new THREE.ConeGeometry(2, 4, 6),
+        new CANNON.Vec3(rand(), 10 + Math.random() * 5, rand()),
+        randColor()
+      );
+    }
+
+    const flashColor = (mesh, originalColor) => {
+      const tempColor = new THREE.Color(0xffff00);
+      mesh.material.color.set(tempColor);
+      setTimeout(() => mesh.material.color.set(originalColor), 250);
+    };
+
+    const spawnTrail = (pos) => {
+      const trail = new THREE.Mesh(
+        new THREE.SphereGeometry(0.4, 8, 8),
+        new THREE.MeshBasicMaterial({ color: 0x00ffff })
+      );
+      trail.position.copy(pos);
+      scene.add(trail);
+      setTimeout(() => scene.remove(trail), 300);
+    };
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    let isDragging = false, draggedBody = null;
+
+    const interact = (x, y) => {
+      mouse.x = (x / window.innerWidth) * 2 - 1;
+      mouse.y = -(y / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      const intersects = raycaster.intersectObjects(objects.map(o => o.mesh));
+      if (intersects.length > 0) {
+        const hit = intersects[0].object;
+        const obj = objects.find(o => o.mesh === hit);
+        if (obj) {
+          draggedBody = obj.body;
+          draggedBody.applyImpulse(new CANNON.Vec3(5, 2, 0), draggedBody.position);
+          updateScore(10);
+          flashColor(obj.mesh, obj.color);
+          spawnTrail(draggedBody.position);
+        }
+      }
+    };
+
+    window.addEventListener('mousedown', e => { isDragging = true; interact(e.clientX, e.clientY); });
+    window.addEventListener('mouseup', () => { isDragging = false; draggedBody = null; });
+    window.addEventListener('mousemove', e => {
+      if (isDragging && draggedBody) {
+        draggedBody.applyImpulse(new CANNON.Vec3(0, 2, 0), draggedBody.position);
+      }
+    });
+
+    window.addEventListener('touchstart', e => {
+      isDragging = true;
+      const t = e.touches[0];
+      interact(t.clientX, t.clientY);
+    });
+
+    window.addEventListener('touchend', () => {
+      isDragging = false;
+      draggedBody = null;
+    });
+
+    camera.position.set(0, frameHeight / 2, 50);
+    camera.lookAt(0, frameHeight / 2, 0);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      world.step(1 / 60);
+      objects.forEach(({ body, mesh }) => {
+        mesh.position.copy(body.position);
+        mesh.quaternion.copy(body.quaternion);
+      });
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>
