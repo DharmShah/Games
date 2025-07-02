@@ -5,6 +5,7 @@ let questions = [];
 let currentInput = [];
 let focusedIndex = 0;
 let showAnswer = false;
+let activeBox = null;
 
 const levelDisplay = document.getElementById("level");
 const topicDisplay = document.getElementById("topic");
@@ -35,7 +36,11 @@ function renderBlanks(answer) {
     input.value = char === " " ? " " : "";
     input.readOnly = char === " ";
 
-    input.addEventListener("focus", () => focusedIndex = i);
+    input.addEventListener("focus", () => {
+      focusedIndex = i;
+      activeBox = input;
+    });
+
     input.addEventListener("input", (e) => {
       const val = e.target.value;
       if (val.length > 0) {
@@ -101,7 +106,6 @@ function checkAnswer() {
   }
 }
 
-
 function showQuestion() {
   const current = questions.find(q => q.level === level);
   if (!current) {
@@ -139,6 +143,30 @@ document.addEventListener("paste", (e) => {
   });
   const next = blanks.querySelector(`[data-index='${chars.length}']`);
   if (next) next.focus();
+});
+
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("helper-btn")) {
+    if (!activeBox) return;
+
+    const insertText = e.target.innerText;
+    const start = activeBox.selectionStart || 0;
+    const end = activeBox.selectionEnd || 0;
+    const original = activeBox.value || "";
+    const newValue = original.slice(0, start) + insertText + original.slice(end);
+
+    activeBox.value = newValue;
+    activeBox.setSelectionRange(start + insertText.length, start + insertText.length);
+
+    const allBoxes = Array.from(document.querySelectorAll(".char-box"));
+    const currentIndex = allBoxes.indexOf(activeBox);
+    currentInput[currentIndex] = newValue;
+
+    const nextBox = allBoxes[currentIndex + 1];
+    if (nextBox && !nextBox.readOnly) {
+      nextBox.focus();
+    }
+  }
 });
 
 submitBtn.addEventListener("click", checkAnswer);
