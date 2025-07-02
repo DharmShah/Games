@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>💻 Neon Hack Simulator: HTML & CSS Quest</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #eafff5;
+      color: #10403c;
+      font-family: 'Fira Code', monospace;
+    }
+
+    .char-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 48px;
+      font-size: 1.25rem;
+      border-radius: 8px;
+      margin: 3px;
+      border: 2px solid #66e5bf;
+      background-color: #d8fff2;
+      color: #10403c;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: all 0.2s ease-in-out;
+    }
+
+    .char-box:focus {
+      outline: none;
+      border-color: #4fd1b8;
+      background-color: #c8fdec;
+      box-shadow: 0 0 8px rgba(102, 229, 191, 0.5);
+      animation: pulse 1s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 6px rgba(102, 229, 191, 0.4); }
+      50% { box-shadow: 0 0 12px rgba(102, 229, 191, 0.6); }
+      100% { box-shadow: 0 0 6px rgba(102, 229, 191, 0.4); }
+    }
+
+    .card {
+      background: #f6fffc;
+      border: 1px solid #d1f7ec;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-green {
+      background-color: #a3ffe0;
+      color: #10403c;
+    }
+
+    .btn-green:hover {
+      background-color: #c6ffee;
+    }
+
+    .btn-yellow {
+      background-color: #fffacc;
+      color: #10403c;
+    }
+
+    .btn-yellow:hover {
+      background-color: #fffde1;
+    }
+
+    #blanks-wrapper {
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+
+    #blanks {
+      display: inline-flex;
+      flex-wrap: nowrap;
+    }
+
+    .helper-btn {
+      background-color: #d8fff2;
+      color: #10403c;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.875rem;
+      padding: 6px 10px;
+      border: 1.5px solid #66e5bf;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    .helper-btn:hover {
+      background-color: #c8fdec;
+      box-shadow: 0 0 4px rgba(102, 229, 191, 0.5);
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen px-4 py-10">
+  <h1 class="text-4xl md:text-5xl font-bold mb-8 text-[#10403c] text-center">
+    🌿 Neon Hack: Learn HTML + CSS
+  </h1>
+
+  <div class="w-full max-w-3xl p-6 rounded-xl card">
+    <div class="mb-6">
+      <p class="text-[#20a089] font-semibold text-lg">
+        LEVEL <span id="level">1</span> - <span id="topic">HTML</span>
+      </p>
+      <p class="mt-2 text-lg">💬 <span id="question">Loading question...</span></p>
+      <p class="text-sm text-[#418e7d] mt-1" id="hint"></p>
+    </div>
+
+    <div class="w-full flex flex-wrap gap-2 mb-3">
+      <button class="helper-btn">&lt;</button>
+      <button class="helper-btn">&gt;</button>
+      <button class="helper-btn">/</button>
+      <button class="helper-btn">"</button>
+      <button class="helper-btn">'</button>
+      <button class="helper-btn">=</button>
+    </div>
+
+    <div id="blanks-wrapper" class="w-full mb-4 overflow-x-auto">
+      <div id="blanks" class="px-1"></div>
+    </div>
+
+    <div class="mt-4 flex flex-wrap items-center gap-3">
+      <button id="submit-btn" class="btn-green px-4 py-2 rounded-md font-bold">
+        Submit
+      </button>
+      <button id="toggle-answer-btn" class="btn-yellow px-4 py-2 rounded-md font-bold hidden">
+        Show Answer
+      </button>
+      <span id="feedback" class="text-sm mt-2 block"></span>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+  <script>
+    let activeBox = null;
+
+    document.addEventListener('focusin', (e) => {
+      if (e.target.classList.contains('char-box')) {
+        activeBox = e.target;
+      }
+    });
+
+document.querySelectorAll('.helper-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (activeBox) {
+      const insertText = btn.innerText.toLowerCase(); // force lowercase
+      const start = activeBox.selectionStart || 0;
+      const end = activeBox.selectionEnd || 0;
+      const original = activeBox.value || "";
+
+      // Insert lowercase text at cursor
+      activeBox.value = original.slice(0, start) + insertText + original.slice(end);
+      activeBox.setSelectionRange(start + insertText.length, start + insertText.length);
+
+      // Update currentInput array
+      const index = parseInt(activeBox.dataset.index);
+      currentInput[index] = insertText;
+
+      // Move to next input box
+      const allBoxes = Array.from(document.querySelectorAll('.char-box'));
+      const currentIndex = allBoxes.indexOf(activeBox);
+      const nextBox = allBoxes[currentIndex + 1];
+      if (nextBox && !nextBox.readOnly) {
+        nextBox.focus();
+      }
+    }
+  });
+});
+      btn.addEventListener('click', () => {
+        if (activeBox) {
+          const insertText = btn.innerText;
+          const start = activeBox.selectionStart || 0;
+          const end = activeBox.selectionEnd || 0;
+          const original = activeBox.value || "";
+
+          const newValue = original.slice(0, start) + insertText + original.slice(end);
+          activeBox.value = newValue;
+          activeBox.setSelectionRange(start + insertText.length, start + insertText.length);
+
+          const allBoxes = Array.from(document.querySelectorAll('.char-box'));
+          const currentIndex = allBoxes.indexOf(activeBox);
+          if (currentIndex !== -1) {
+            currentInput[currentIndex] = activeBox.value;
+          }
+
+          if (insertText.length === 1) {
+            const nextBox = allBoxes[currentIndex + 1];
+            if (nextBox && !nextBox.readOnly) nextBox.focus();
+          }
+        }
+      });
+      
+  </script>
+</body>
+</html>
