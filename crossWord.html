@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WordWave</title>
+  <script defer src="crossWord.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-white font-mono flex flex-col items-center justify-center min-h-screen p-4">
+  <h1 class="text-3xl mb-4 font-bold">WordWave</h1>
+
+  <!-- Game Grid -->
+  <div id="grid" class="grid grid-cols-8 gap-1 mb-6"></div>
+
+  <!-- Hints + Controls -->
+  <div class="text-center">
+    <div id="category" class="mb-2 text-yellow-400 font-semibold text-lg"></div>
+    <h2 class="text-lg font-semibold mb-2">Hints</h2>
+    <ul id="hints" class="space-y-1 text-sm mb-4"></ul>
+    <button id="showWordsBtn" class="px-4 py-1 bg-blue-600 hover:bg-blue-700 rounded">Show Words</button>
+  </div>
+
+  <!-- Victory -->
+  <div id="victory" class="mt-6 text-green-400 text-2xl hidden">🎉 You found all words! New round loading...</div>
+</body>
+</html>

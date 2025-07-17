@@ -4,12 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>🎮 Dharm's Game Hub</title>
+
+    <!-- TailwindCSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://emojiapi.dev/api/v1/video_game/64.png" />
+
+    <!-- SEO & Meta -->
+    <meta
+      name="description"
+      content="Play interactive games and learn with Dharm's Game Hub! HTML, CSS, JS – it's all here."
+    />
+    <meta name="author" content="Dharm" />
+    <meta name="theme-color" content="#eafff5" />
   </head>
   <body
     class="bg-[#eafff5] text-[#10403c] font-mono flex flex-col min-h-screen"
   >
-    <!-- Main Content Wrapper -->
+    <!-- Main Content -->
     <main
       class="flex-grow flex flex-col items-center justify-center px-4 py-10"
     >
@@ -18,35 +31,48 @@
           🌿 Welcome to Dharm's Game Hub
         </h1>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <!-- Game 1 -->
+        <!-- Game Cards Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <!-- Game 1: 3D Box -->
           <a
             href="./3DBox.html"
             class="bg-[#d8fff2] border-2 border-[#66e5bf] rounded-xl shadow-md p-6 flex flex-col items-center transition-all hover:bg-[#c8fdec] hover:scale-105 hover:shadow-lg"
           >
-            <span class="text-2xl font-semibold mb-1">📦 3D Box</span>
+            <span class="text-3xl mb-2">📦</span>
+            <span class="text-xl font-semibold mb-1">3D Box</span>
             <p class="text-sm text-[#10403c]/80">
               Physics-based 3D object game
             </p>
           </a>
 
-          <!-- Game 2 -->
+          <!-- Game 2: Coding Practice -->
           <a
             href="./codingGame.html"
             class="bg-[#d8fff2] border-2 border-[#66e5bf] rounded-xl shadow-md p-6 flex flex-col items-center transition-all hover:bg-[#c8fdec] hover:scale-105 hover:shadow-lg"
           >
-            <span class="text-2xl font-semibold mb-1">💻 Learn Coding</span>
+            <span class="text-3xl mb-2">💻</span>
+            <span class="text-xl font-semibold mb-1">Learn Coding</span>
             <p class="text-sm text-[#10403c]/80">
-              HTML + CSS + Js interactive practice
+              HTML + CSS + JS interactive practice
             </p>
           </a>
 
-          <!-- Add more games as needed -->
+          <!-- Game 3: Word Puzzle -->
+          <a
+            href="./crossWord.html"
+            class="bg-[#d8fff2] border-2 border-[#66e5bf] rounded-xl shadow-md p-6 flex flex-col items-center transition-all hover:bg-[#c8fdec] hover:scale-105 hover:shadow-lg"
+          >
+            <span class="text-3xl mb-2">🧩</span>
+            <span class="text-xl font-semibold mb-1">Word Puzzle</span>
+            <p class="text-sm text-[#10403c]/80">
+              Find words and uncover the category!
+            </p>
+          </a>
         </div>
       </div>
     </main>
 
-    <!-- Footer (always at bottom) -->
+    <!-- Footer -->
     <footer
       class="border-t border-[#66e5bf] py-4 text-center text-sm text-[#418e7d]"
     >
