@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Virtual Shirt Try-On</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+
+  <!-- MediaPipe Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/pose.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.min.js"></script>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen">
+  <h1 class="text-3xl font-bold mb-4">Virtual Shirt Try-On</h1>
+
+  <!-- Camera feed + canvas -->
+  <div class="relative w-full max-w-md aspect-video">
+    <video id="input_video" class="rounded-lg w-full h-full" autoplay muted playsinline></video>
+    <canvas id="output_canvas" class="absolute top-0 left-0 w-full h-full pointer-events-none"></canvas>
+  </div>
+
+  <!-- Shirt thumbnail gallery -->
+  <div id="shirtGallery" class="mt-6 flex flex-wrap justify-center gap-4 px-4"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
