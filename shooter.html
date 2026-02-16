@@ -93,7 +93,7 @@
               id="gameCanvas"
               width="480"
               height="520"
-              class="w-full rounded-2xl border border-emerald-200/10 bg-slate-950 shadow-inner"
+              class="w-full touch-none rounded-2xl border border-emerald-200/10 bg-slate-950 shadow-inner"
             ></canvas>
             <div
               id="overlay"
@@ -106,6 +106,14 @@
                 </p>
               </div>
             </div>
+          </div>
+          <div class="mt-4 flex justify-center sm:hidden">
+            <button
+              id="shootBtn"
+              class="touch-none rounded-full bg-emerald-400 px-8 py-3 text-sm font-semibold text-slate-900"
+            >
+              Shoot
+            </button>
           </div>
           <p id="status" class="mt-4 text-sm font-semibold text-emerald-200">
             Waiting for launch...

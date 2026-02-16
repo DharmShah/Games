@@ -9,6 +9,7 @@ const statusEl = document.getElementById("status");
 const scoreEl = document.getElementById("score");
 const livesEl = document.getElementById("lives");
 const waveEl = document.getElementById("wave");
+const shootBtn = document.getElementById("shootBtn");
 
 const keys = new Set();
 const stars = Array.from({ length: 90 }, () => ({
@@ -315,6 +316,65 @@ window.addEventListener("keyup", (event) => {
         keys.delete("space");
     }
 });
+
+const bindHoldButton = (button, key) => {
+    if (!button) return;
+    const startHold = (event) => {
+        event.preventDefault();
+        keys.add(key);
+        if (!state.running) {
+            startGame();
+        }
+    };
+    const endHold = (event) => {
+        event.preventDefault();
+        keys.delete(key);
+    };
+    button.addEventListener("pointerdown", startHold);
+    button.addEventListener("pointerup", endHold);
+    button.addEventListener("pointerleave", endHold);
+    button.addEventListener("pointercancel", endHold);
+};
+
+bindHoldButton(shootBtn, "space");
+
+const pointerState = {
+    active: false,
+    id: null,
+};
+
+const movePlayerToPointer = (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const scaleX = canvas.width / rect.width;
+    const target = x * scaleX - player.w / 2;
+    player.x = clamp(target, 12, canvas.width - player.w - 12);
+};
+
+canvas.addEventListener("pointerdown", (event) => {
+    event.preventDefault();
+    pointerState.active = true;
+    pointerState.id = event.pointerId;
+    canvas.setPointerCapture(event.pointerId);
+    movePlayerToPointer(event);
+    if (!state.running) {
+        startGame();
+    }
+});
+
+canvas.addEventListener("pointermove", (event) => {
+    if (!pointerState.active || event.pointerId !== pointerState.id) return;
+    movePlayerToPointer(event);
+});
+
+const stopPointer = (event) => {
+    if (event.pointerId !== pointerState.id) return;
+    pointerState.active = false;
+    pointerState.id = null;
+};
+
+canvas.addEventListener("pointerup", stopPointer);
+canvas.addEventListener("pointercancel", stopPointer);
 
 resetGame();
 setOverlay("Press Start to play", true);
