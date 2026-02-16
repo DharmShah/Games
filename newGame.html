@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Memory Match</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="min-h-screen bg-gradient-to-br from-sky-100 via-emerald-100 to-amber-100 text-slate-900"
+  >
+    <div class="mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-6 py-10">
+      <header
+        class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"
+      >
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-slate-600">
+            Card Memory Game
+          </p>
+          <h1 class="text-3xl font-bold sm:text-4xl">Memory Match</h1>
+          <p class="mt-2 max-w-xl text-sm text-slate-700">
+            Flip two cards at a time to find all pairs. Fewer moves and faster
+            time win.
+          </p>
+        </div>
+        <div class="flex gap-3">
+          <button
+            id="resetBtn"
+            class="rounded-full bg-slate-900 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5 hover:bg-slate-800"
+          >
+            New Game
+          </button>
+        </div>
+      </header>
+
+      <section class="grid gap-4 sm:grid-cols-[260px_1fr]">
+        <div
+          class="rounded-3xl bg-white/70 p-5 shadow-xl shadow-slate-900/10 backdrop-blur"
+        >
+          <h2 class="text-base font-semibold text-slate-800">Game Stats</h2>
+          <div class="mt-4 grid gap-4 text-sm">
+            <div class="rounded-2xl bg-slate-900 px-4 py-3 text-white">
+              <p class="text-xs uppercase tracking-wide text-white/70">Time</p>
+              <p id="time" class="text-2xl font-semibold">00:00</p>
+            </div>
+            <div class="rounded-2xl bg-white px-4 py-3">
+              <p class="text-xs uppercase tracking-wide text-slate-500">
+                Moves
+              </p>
+              <p id="moves" class="text-2xl font-semibold text-slate-900">0</p>
+            </div>
+            <div class="rounded-2xl bg-white px-4 py-3">
+              <p class="text-xs uppercase tracking-wide text-slate-500">
+                Pairs Left
+              </p>
+              <p id="pairs" class="text-2xl font-semibold text-slate-900">8</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="rounded-3xl bg-white/70 p-5 shadow-xl shadow-slate-900/10 backdrop-blur"
+        >
+          <div
+            id="board"
+            class="grid grid-cols-4 gap-3"
+            aria-live="polite"
+          ></div>
+          <p
+            id="message"
+            class="mt-4 text-sm font-semibold text-emerald-700"
+          ></p>
+        </div>
+      </section>
+
+      <footer class="text-xs text-slate-600">
+        Tip: Focus on corners first for easier tracking.
+      </footer>
+    </div>
+
+    <script src="newGame.js"></script>
+  </body>
+</html>
