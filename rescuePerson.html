@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Candy Rescue</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen overflow-y-auto bg-slate-950 text-slate-100">
+    <main class="mx-auto flex min-h-screen max-w-6xl flex-col gap-3 p-3 md:p-4">
+      <header
+        class="rounded-2xl border border-slate-800 bg-slate-900/70 p-3 md:p-4"
+      >
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 class="text-2xl font-bold tracking-tight">Candy Rescue</h1>
+            <p class="text-sm text-slate-300">
+              Match candies quickly to push snakes back and save the character.
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <section class="flex flex-1 flex-col">
+        <section
+          class="flex flex-col rounded-2xl border border-slate-800 bg-slate-900/60 p-3"
+        >
+          <div class="mb-3">
+            <div class="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <h2 class="text-lg font-bold">Rescue Path</h2>
+                <p
+                  id="dangerInfo"
+                  class="hidden text-sm font-semibold text-rose-400"
+                >
+                  ⚠ Danger: Snake is very close!
+                </p>
+              </div>
+
+              <div class="flex flex-wrap items-center justify-end gap-2">
+                <div class="rounded-lg bg-slate-950 px-2 py-1 text-xs">
+                  Lv <span id="levelInfo">1</span>/15
+                </div>
+                <div class="rounded-lg bg-slate-950 px-2 py-1 text-xs">
+                  Target <span id="targetInfo">0</span>
+                </div>
+                <div class="rounded-lg bg-slate-950 px-2 py-1 text-xs">
+                  Cleared <span id="clearedInfo">0</span>
+                </div>
+                <div class="rounded-lg bg-slate-950 px-2 py-1 text-xs">
+                  Time <span id="timeInfo">0</span>s
+                </div>
+                <div class="rounded-lg bg-slate-950 px-2 py-1 text-xs">
+                  Snake <span id="distanceInfo">0</span>
+                </div>
+                <div class="rounded-lg bg-slate-950 px-2 py-1 text-xs">
+                  Status
+                  <span id="statusInfo" class="text-emerald-300">Running</span>
+                </div>
+
+                <div class="relative">
+                  <button
+                    id="menuBtn"
+                    class="grid h-9 w-9 place-items-center rounded-lg bg-slate-800 text-lg hover:bg-slate-700"
+                  >
+                    ☰
+                  </button>
+                  <div
+                    id="menuPanel"
+                    class="absolute right-0 z-30 mt-2 hidden min-w-40 rounded-xl border border-slate-700 bg-slate-900 p-2 shadow-lg shadow-slate-950/60"
+                  >
+                    <button
+                      id="menuPlayBtn"
+                      class="mb-1 w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-800"
+                    >
+                      Play
+                    </button>
+                    <button
+                      id="menuPauseBtn"
+                      class="mb-1 w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-800"
+                    >
+                      Pause
+                    </button>
+                    <button
+                      id="menuResumeBtn"
+                      class="mb-1 w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-800"
+                    >
+                      Resume
+                    </button>
+                    <button
+                      id="menuRetryBtn"
+                      class="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-slate-800"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div
+              class="mt-2 overflow-hidden rounded-xl border border-slate-800 bg-slate-950 p-3"
+            >
+              <div
+                id="path"
+                class="relative h-20 rounded-lg border border-slate-800 bg-slate-900"
+              ></div>
+            </div>
+          </div>
+
+          <div class="grid flex-1 place-items-center overflow-auto">
+            <div
+              id="board"
+              class="grid gap-1 rounded-xl border border-slate-800 bg-slate-950 p-2"
+            ></div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <section
+      id="demoOverlay"
+      class="fixed inset-0 z-50 grid place-items-center bg-slate-950/90 p-4"
+    >
+      <div
+        class="w-full max-w-xl rounded-2xl border border-slate-700 bg-slate-900 p-5"
+      >
+        <h2 class="text-xl font-bold">Quick Demo</h2>
+        <p class="mt-2 text-sm text-slate-300">
+          Swap nearby candies to make 3 in a row. Clear fast to push the snake
+          back and keep the character safe.
+        </p>
+        <div class="mt-4 rounded-xl border border-slate-700 bg-slate-950 p-4">
+          <div class="flex items-center justify-center gap-3 text-3xl">
+            <span class="rounded-lg bg-slate-800 p-2">🍒</span>
+            <span class="rounded-lg bg-slate-800 p-2">🍒</span>
+            <span class="rounded-lg bg-slate-800 p-2">🍋</span>
+            <span class="text-xl text-sky-300">⇄</span>
+            <span class="rounded-lg bg-slate-800 p-2">🍒</span>
+            <span class="rounded-lg bg-slate-800 p-2">🍒</span>
+            <span class="rounded-lg bg-slate-800 p-2">🍒</span>
+          </div>
+          <p class="mt-3 text-center text-xs text-slate-400">
+            Match formed → candies clear → snake goes back.
+          </p>
+        </div>
+        <button
+          id="startDemoBtn"
+          class="mt-4 w-full rounded-lg bg-indigo-500 px-4 py-2 font-semibold text-white hover:bg-indigo-400"
+        >
+          Start Game
+        </button>
+      </div>
+    </section>
+
+    <section
+      id="resultOverlay"
+      class="fixed inset-0 z-50 hidden place-items-center bg-slate-950/80 p-4"
+    >
+      <div
+        id="resultCard"
+        class="w-full max-w-md rounded-2xl border border-slate-700 bg-slate-900 p-5"
+      >
+        <h2 id="resultTitle" class="text-2xl font-bold">Result</h2>
+        <p id="resultText" class="mt-2 text-sm text-slate-300"></p>
+        <div class="mt-4 flex gap-2">
+          <button
+            id="resultRetryBtn"
+            class="w-full rounded-lg bg-rose-500 px-4 py-2 font-semibold text-slate-900 hover:bg-rose-400"
+          >
+            Retry
+          </button>
+          <button
+            id="resultNextBtn"
+            class="w-full rounded-lg bg-emerald-500 px-4 py-2 font-semibold text-slate-900 hover:bg-emerald-400"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <script>
+      const BOARD_SIZE = 8;
+      const MAX_LEVEL = 15;
+      const CELL = 52;
+
+      const candySet = ["🍒", "🍋", "🍇", "🍊", "🍬", "🍏", "🫐"];
+
+      const levelConfig = (level) => {
+        const candies = Math.min(5 + Math.floor((level - 1) / 4), 7);
+        const target = 18 + level * 5;
+        const baseTime = Math.max(30, 85 - level * 2);
+        const snakeStartDistance = 34 + Math.max(0, 16 - level);
+        const snakeStepIntervalMs = Math.max(550, 1800 - level * 70);
+        return {
+          candies,
+          target,
+          baseTime,
+          snakeStartDistance,
+          snakeStepIntervalMs,
+        };
+      };
+
+      const boardEl = document.getElementById("board");
+      const pathEl = document.getElementById("path");
+      const levelInfo = document.getElementById("levelInfo");
+      const targetInfo = document.getElementById("targetInfo");
+      const clearedInfo = document.getElementById("clearedInfo");
+      const timeInfo = document.getElementById("timeInfo");
+      const distanceInfo = document.getElementById("distanceInfo");
+      const statusInfo = document.getElementById("statusInfo");
+      const dangerInfo = document.getElementById("dangerInfo");
+      const demoOverlay = document.getElementById("demoOverlay");
+      const startDemoBtn = document.getElementById("startDemoBtn");
+      const resultOverlay = document.getElementById("resultOverlay");
+      const resultCard = document.getElementById("resultCard");
+      const resultTitle = document.getElementById("resultTitle");
+      const resultText = document.getElementById("resultText");
+      const resultRetryBtn = document.getElementById("resultRetryBtn");
+      const resultNextBtn = document.getElementById("resultNextBtn");
+
+      const menuBtn = document.getElementById("menuBtn");
+      const menuPanel = document.getElementById("menuPanel");
+      const menuPlayBtn = document.getElementById("menuPlayBtn");
+      const menuPauseBtn = document.getElementById("menuPauseBtn");
+      const menuResumeBtn = document.getElementById("menuResumeBtn");
+      const menuRetryBtn = document.getElementById("menuRetryBtn");
+
+      const sessionKey = "candy_rescue_progress";
+
+      const state = {
+        board: [],
+        selected: null,
+        level: 1,
+        unlockedLevel: 1,
+        initialTarget: 0,
+        target: 0,
+        cleared: 0,
+        timeLeft: 0,
+        distance: 0,
+        running: true,
+        ended: false,
+        canInteract: true,
+        snakeTickMs: 1400,
+        tickTimer: null,
+        secondTimer: null,
+        candiesThisLevel: 5,
+        characterLead: 0,
+        showedDanger: false,
+      };
+
+      function loadSession() {
+        try {
+          const raw = sessionStorage.getItem(sessionKey);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (
+            typeof parsed.unlockedLevel === "number" &&
+            parsed.unlockedLevel >= 1 &&
+            parsed.unlockedLevel <= MAX_LEVEL
+          ) {
+            state.unlockedLevel = parsed.unlockedLevel;
+          }
+        } catch {
+          state.unlockedLevel = 1;
+        }
+      }
+
+      function saveSession() {
+        sessionStorage.setItem(
+          sessionKey,
+          JSON.stringify({ unlockedLevel: state.unlockedLevel }),
+        );
+      }
+
+      function setupBoardGrid() {
+        boardEl.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, ${CELL}px)`;
+        boardEl.style.gridTemplateRows = `repeat(${BOARD_SIZE}, ${CELL}px)`;
+      }
+
+      function randomCandy() {
+        return candySet[Math.floor(Math.random() * state.candiesThisLevel)];
+      }
+
+      function createBoardNoInitialMatches() {
+        const board = Array.from({ length: BOARD_SIZE }, () =>
+          Array(BOARD_SIZE).fill(null),
+        );
+
+        for (let r = 0; r < BOARD_SIZE; r++) {
+          for (let c = 0; c < BOARD_SIZE; c++) {
+            let piece = randomCandy();
+            while (
+              (c >= 2 &&
+                board[r][c - 1] === piece &&
+                board[r][c - 2] === piece) ||
+              (r >= 2 && board[r - 1][c] === piece && board[r - 2][c] === piece)
+            ) {
+              piece = randomCandy();
+            }
+            board[r][c] = piece;
+          }
+        }
+
+        state.board = board;
+      }
+
+      function renderBoard() {
+        boardEl.innerHTML = "";
+
+        for (let r = 0; r < BOARD_SIZE; r++) {
+          for (let c = 0; c < BOARD_SIZE; c++) {
+            const cell = document.createElement("button");
+            cell.type = "button";
+            cell.className =
+              "grid h-[52px] w-[52px] place-items-center rounded-md border border-slate-800 bg-slate-900 text-2xl transition hover:border-slate-500";
+            if (
+              state.selected &&
+              state.selected.r === r &&
+              state.selected.c === c
+            ) {
+              cell.classList.add("ring-2", "ring-sky-400");
+            }
+            cell.dataset.r = r;
+            cell.dataset.c = c;
+            cell.textContent = state.board[r][c] || "";
+            if (!state.board[r][c]) {
+              cell.classList.remove("bg-slate-900");
+              cell.classList.add("bg-slate-950", "opacity-30");
+            }
+            cell.addEventListener("click", onCellClick);
+            boardEl.appendChild(cell);
+          }
+        }
+      }
+
+      function isAdjacent(a, b) {
+        return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
+      }
+
+      function swapCells(a, b) {
+        const temp = state.board[a.r][a.c];
+        state.board[a.r][a.c] = state.board[b.r][b.c];
+        state.board[b.r][b.c] = temp;
+      }
+
+      function findMatches() {
+        const matched = new Set();
+
+        for (let r = 0; r < BOARD_SIZE; r++) {
+          let streak = 1;
+          for (let c = 1; c <= BOARD_SIZE; c++) {
+            const current = c < BOARD_SIZE ? state.board[r][c] : null;
+            const prev = state.board[r][c - 1];
+            if (current && current === prev) {
+              streak++;
+            } else {
+              if (streak >= 3) {
+                for (let k = 0; k < streak; k++)
+                  matched.add(`${r},${c - 1 - k}`);
+              }
+              streak = 1;
+            }
+          }
+        }
+
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          let streak = 1;
+          for (let r = 1; r <= BOARD_SIZE; r++) {
+            const current = r < BOARD_SIZE ? state.board[r][c] : null;
+            const prev = state.board[r - 1][c];
+            if (current && current === prev) {
+              streak++;
+            } else {
+              if (streak >= 3) {
+                for (let k = 0; k < streak; k++)
+                  matched.add(`${r - 1 - k},${c}`);
+              }
+              streak = 1;
+            }
+          }
+        }
+
+        return [...matched].map((x) => {
+          const [r, c] = x.split(",").map(Number);
+          return { r, c };
+        });
+      }
+
+      function collapseBoard() {
+        for (let c = 0; c < BOARD_SIZE; c++) {
+          const col = [];
+          for (let r = BOARD_SIZE - 1; r >= 0; r--) {
+            if (state.board[r][c]) col.push(state.board[r][c]);
+          }
+          for (let r = BOARD_SIZE - 1; r >= 0; r--) {
+            state.board[r][c] = col[BOARD_SIZE - 1 - r] || randomCandy();
+          }
+        }
+      }
+
+      async function resolveBoard() {
+        let totalCleared = 0;
+        while (true) {
+          const matches = findMatches();
+          if (!matches.length) break;
+
+          totalCleared += matches.length;
+          for (const m of matches) {
+            state.board[m.r][m.c] = null;
+          }
+
+          renderBoard();
+          await wait(130);
+          collapseBoard();
+          renderBoard();
+          await wait(90);
+        }
+        return totalCleared;
+      }
+
+      function wait(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
+
+      async function onCellClick(e) {
+        if (!state.running || state.ended || !state.canInteract) return;
+
+        const r = Number(e.currentTarget.dataset.r);
+        const c = Number(e.currentTarget.dataset.c);
+        const clicked = { r, c };
+
+        if (!state.selected) {
+          state.selected = clicked;
+          renderBoard();
+          return;
+        }
+
+        if (state.selected.r === clicked.r && state.selected.c === clicked.c) {
+          state.selected = null;
+          renderBoard();
+          return;
+        }
+
+        if (!isAdjacent(state.selected, clicked)) {
+          state.selected = clicked;
+          renderBoard();
+          return;
+        }
+
+        state.canInteract = false;
+        const first = state.selected;
+        state.selected = null;
+        swapCells(first, clicked);
+        renderBoard();
+
+        const initialMatches = findMatches();
+        if (!initialMatches.length) {
+          await wait(120);
+          swapCells(first, clicked);
+          renderBoard();
+          state.canInteract = true;
+          return;
+        }
+
+        const cleared = await resolveBoard();
+        if (cleared > 0) {
+          state.target = Math.max(0, state.target - cleared);
+          state.cleared = state.initialTarget - state.target;
+          state.timeLeft += Math.max(2, Math.floor(cleared / 2));
+          state.distance = Math.min(
+            state.distance + 2,
+            levelConfig(state.level).snakeStartDistance + 10,
+          );
+          state.characterLead = Math.min(state.characterLead + 2, 12);
+        }
+
+        updateUI();
+        checkWinLose();
+        state.canInteract = true;
+      }
+
+      function drawPath() {
+        pathEl.innerHTML = "";
+
+        const character = document.createElement("img");
+        character.id = "character";
+        character.alt = "Character";
+        character.src = "char.png";
+        character.className =
+          "absolute top-1/2 h-14 w-14 -translate-y-1/2 rounded-full border border-slate-700 bg-slate-800 object-cover p-1";
+        character.onerror = () => {
+          if (!character.dataset.fallbackTried) {
+            character.dataset.fallbackTried = "1";
+            character.src = "char.jpg";
+            return;
+          }
+          character.replaceWith(makeFallbackCharacter());
+        };
+
+        const snake = document.createElement("div");
+        snake.id = "snake";
+        snake.className = "absolute left-2 top-1/2 h-8 -translate-y-1/2";
+
+        const body = [];
+        for (let i = 0; i < 7; i++) {
+          const seg = document.createElement("span");
+          seg.className =
+            "absolute top-1/2 h-5 w-5 -translate-y-1/2 rounded-full";
+          seg.style.left = `${i * 12}px`;
+          seg.style.background = i === 6 ? "#facc15" : "#22c55e";
+          body.push(seg);
+          snake.appendChild(seg);
+        }
+
+        pathEl.appendChild(character);
+        pathEl.appendChild(snake);
+        positionActors();
+      }
+
+      function makeFallbackCharacter() {
+        const div = document.createElement("div");
+        div.id = "character";
+        div.className =
+          "absolute top-1/2 grid h-14 w-14 -translate-y-1/2 place-items-center rounded-full border border-slate-700 bg-indigo-700 text-2xl";
+        div.textContent = "🧑";
+        return div;
+      }
+
+      function positionActors() {
+        const snake = document.getElementById("snake");
+        const character = document.getElementById("character");
+        if (!snake || !character) return;
+        const maxTrack = Math.max(220, pathEl.clientWidth - 40);
+        const characterBase = maxTrack - 88;
+        const characterX = Math.min(
+          maxTrack - 64,
+          characterBase + state.characterLead * 5,
+        );
+        character.style.left = `${characterX}px`;
+
+        const cfg = levelConfig(state.level);
+        const effectiveDistance = state.distance + state.characterLead;
+        const ratio = 1 - effectiveDistance / cfg.snakeStartDistance;
+        const clamped = Math.max(0, Math.min(1, ratio));
+        const snakeSpace = Math.max(20, characterX - 42);
+        snake.style.left = `${8 + clamped * snakeSpace}px`;
+      }
+
+      function startTimers() {
+        clearTimers();
+        state.secondTimer = setInterval(() => {
+          if (!state.running || state.ended) return;
+          state.timeLeft -= 1;
+          updateUI();
+          checkWinLose();
+        }, 1000);
+
+        state.tickTimer = setInterval(() => {
+          if (!state.running || state.ended) return;
+          state.distance -= 1;
+          state.characterLead = Math.max(0, state.characterLead - 0.25);
+          updateUI();
+          positionActors();
+          checkWinLose();
+        }, state.snakeTickMs);
+      }
+
+      function clearTimers() {
+        if (state.secondTimer) clearInterval(state.secondTimer);
+        if (state.tickTimer) clearInterval(state.tickTimer);
+        state.secondTimer = null;
+        state.tickTimer = null;
+      }
+
+      function updateUI() {
+        levelInfo.textContent = String(state.level);
+        targetInfo.textContent = String(state.target);
+        clearedInfo.textContent = String(state.cleared);
+        timeInfo.textContent = String(Math.max(0, state.timeLeft));
+        distanceInfo.textContent = String(Math.max(0, state.distance));
+        statusInfo.textContent = state.ended
+          ? "Ended"
+          : state.running
+            ? "Running"
+            : "Paused";
+        statusInfo.className = state.running
+          ? "text-emerald-300"
+          : "text-amber-300";
+        if (state.ended) statusInfo.className = "text-rose-300";
+
+        const cfg = levelConfig(state.level);
+        const effectiveDistance = Math.max(
+          0,
+          state.distance + state.characterLead,
+        );
+        const dangerThreshold = cfg.snakeStartDistance * 0.1;
+        const inDanger = effectiveDistance <= dangerThreshold && !state.ended;
+        dangerInfo.classList.toggle("hidden", !inDanger);
+
+        if (inDanger && !state.showedDanger) {
+          state.showedDanger = true;
+          showBanner("Danger! Snake is 90% close.", "lose");
+        }
+        if (!inDanger) {
+          state.showedDanger = false;
+        }
+
+        positionActors();
+      }
+
+      function openResultOverlay(mode) {
+        resultOverlay.classList.remove("hidden");
+        resultOverlay.classList.add("grid");
+
+        if (mode === "win") {
+          resultCard.classList.remove("border-rose-600", "bg-rose-950/60");
+          resultCard.classList.add("border-emerald-500", "bg-emerald-950/30");
+          resultTitle.textContent = "Level Cleared";
+          resultText.textContent = `Great job! Level ${state.level} completed.`;
+          resultNextBtn.classList.remove("hidden");
+          resultRetryBtn.classList.remove("w-full");
+          resultRetryBtn.classList.add("w-1/2");
+        } else {
+          resultCard.classList.remove(
+            "border-emerald-500",
+            "bg-emerald-950/30",
+          );
+          resultCard.classList.add("border-rose-600", "bg-rose-950/60");
+          resultTitle.textContent = "Game Over";
+          resultText.textContent = "Snake reached too close. Try again!";
+          resultNextBtn.classList.add("hidden");
+          resultRetryBtn.classList.remove("w-1/2");
+          resultRetryBtn.classList.add("w-full");
+        }
+      }
+
+      function closeResultOverlay() {
+        resultOverlay.classList.add("hidden");
+        resultOverlay.classList.remove("grid");
+      }
+
+      function refreshLevelSelect() {
+        return;
+      }
+
+      function showBanner(message, tone = "info") {
+        const box = document.createElement("div");
+        const toneClass =
+          tone === "win"
+            ? "border-emerald-500 bg-emerald-950/90"
+            : tone === "lose"
+              ? "border-rose-500 bg-rose-950/90"
+              : "border-sky-500 bg-sky-950/90";
+        box.className = `fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-lg border px-4 py-2 text-sm ${toneClass}`;
+        box.textContent = message;
+        document.body.appendChild(box);
+        setTimeout(() => box.remove(), 2100);
+      }
+
+      function checkWinLose() {
+        if (state.ended) return;
+
+        if (state.target <= 0) {
+          state.ended = true;
+          state.running = false;
+          clearTimers();
+
+          if (state.level < MAX_LEVEL) {
+            state.unlockedLevel = Math.max(
+              state.unlockedLevel,
+              state.level + 1,
+            );
+            saveSession();
+            refreshLevelSelect();
+            openResultOverlay("win");
+          } else {
+            openResultOverlay("win");
+            resultNextBtn.classList.add("hidden");
+            resultRetryBtn.classList.remove("w-1/2");
+            resultRetryBtn.classList.add("w-full");
+          }
+          updateUI();
+          return;
+        }
+
+        if (state.timeLeft <= 0 || state.distance <= 0) {
+          state.ended = true;
+          state.running = false;
+          clearTimers();
+          openResultOverlay("lose");
+          updateUI();
+        }
+      }
+
+      function startLevel(level) {
+        const safeLevel = Math.min(Math.max(1, level), state.unlockedLevel);
+        state.level = safeLevel;
+
+        const cfg = levelConfig(safeLevel);
+        state.initialTarget = cfg.target;
+        state.target = cfg.target;
+        state.cleared = 0;
+        state.timeLeft = cfg.baseTime;
+        state.distance = cfg.snakeStartDistance;
+        state.running = true;
+        state.ended = false;
+        state.canInteract = true;
+        state.selected = null;
+        state.snakeTickMs = cfg.snakeStepIntervalMs;
+        state.candiesThisLevel = cfg.candies;
+        state.characterLead = 0;
+        state.showedDanger = false;
+
+        createBoardNoInitialMatches();
+        setupBoardGrid();
+        renderBoard();
+        drawPath();
+        updateUI();
+        refreshLevelSelect();
+        startTimers();
+        closeResultOverlay();
+      }
+
+      function closeMenu() {
+        menuPanel.classList.add("hidden");
+      }
+
+      menuBtn.addEventListener("click", () => {
+        menuPanel.classList.toggle("hidden");
+      });
+
+      document.addEventListener("click", (event) => {
+        if (
+          !menuPanel.contains(event.target) &&
+          !menuBtn.contains(event.target)
+        ) {
+          closeMenu();
+        }
+      });
+
+      menuPlayBtn.addEventListener("click", () => {
+        startLevel(state.level);
+        closeMenu();
+      });
+
+      menuPauseBtn.addEventListener("click", () => {
+        if (state.ended) return;
+        state.running = false;
+        updateUI();
+        closeMenu();
+      });
+
+      menuResumeBtn.addEventListener("click", () => {
+        if (state.ended) return;
+        state.running = true;
+        updateUI();
+        closeMenu();
+      });
+
+      menuRetryBtn.addEventListener("click", () => {
+        startLevel(state.level);
+        closeMenu();
+      });
+
+      startDemoBtn.addEventListener("click", () => {
+        demoOverlay.classList.add("hidden");
+        state.running = true;
+        updateUI();
+      });
+
+      resultRetryBtn.addEventListener("click", () => {
+        startLevel(state.level);
+      });
+
+      resultNextBtn.addEventListener("click", () => {
+        const nextLevel = Math.min(state.level + 1, state.unlockedLevel);
+        startLevel(nextLevel);
+      });
+
+      window.addEventListener("resize", positionActors);
+
+      loadSession();
+      startLevel(1);
+      state.running = false;
+      updateUI();
+    </script>
+  </body>
+</html>
