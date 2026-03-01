@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2048 - Dharm's Game Hub</title>
+    <link rel="icon" href="https://emojiapi.dev/api/v1/video_game/64.png" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { mono: ['"Courier New"', "monospace"] },
+            colors: {
+              neon: {
+                dark: "#0a0a2e",
+                mid: "#1a1a4e",
+                cyan: "#6fffe9",
+                pink: "#ff6fd8",
+                gold: "#ffd86f",
+              },
+            },
+            keyframes: {
+              gradientShift: {
+                "0%, 100%": { backgroundPosition: "0% 50%" },
+                "50%": { backgroundPosition: "100% 50%" },
+              },
+              pop: {
+                "0%": { transform: "scale(0)" },
+                "60%": { transform: "scale(1.15)" },
+                "100%": { transform: "scale(1)" },
+              },
+              merge: {
+                "0%, 100%": { transform: "scale(1)" },
+                "50%": { transform: "scale(1.25)" },
+              },
+            },
+            animation: {
+              "gradient-shift": "gradientShift 12s ease infinite",
+              pop: "pop 0.2s ease",
+              merge: "merge 0.2s ease",
+            },
+          },
+        },
+      };
+    </script>
+    <style>
+      /* Tile colors - game-specific, not feasible in pure Tailwind */
+      .tile {
+        font-size: 1.6rem;
+      }
+      .tile-0 {
+        background: rgba(255, 255, 255, 0.04);
+      }
+      .tile-2 {
+        background: #6fffe9;
+        color: #0a0a2e;
+      }
+      .tile-4 {
+        background: #5ce0d0;
+        color: #0a0a2e;
+      }
+      .tile-8 {
+        background: #ffa366;
+        color: #fff;
+      }
+      .tile-16 {
+        background: #ff7844;
+        color: #fff;
+      }
+      .tile-32 {
+        background: #ff5533;
+        color: #fff;
+      }
+      .tile-64 {
+        background: #ff3322;
+        color: #fff;
+      }
+      .tile-128 {
+        background: #ffd86f;
+        color: #0a0a2e;
+        font-size: 1.4rem;
+      }
+      .tile-256 {
+        background: #ffc830;
+        color: #0a0a2e;
+        font-size: 1.4rem;
+      }
+      .tile-512 {
+        background: #ff6fd8;
+        color: #fff;
+        font-size: 1.4rem;
+      }
+      .tile-1024 {
+        background: #d84fff;
+        color: #fff;
+        font-size: 1.2rem;
+      }
+      .tile-2048 {
+        background: linear-gradient(135deg, #ff6fd8, #ffd86f, #6fffe9);
+        color: #0a0a2e;
+        font-size: 1.2rem;
+        box-shadow: 0 0 30px rgba(255, 215, 111, 0.6);
+      }
+      .tile-super {
+        background: linear-gradient(135deg, #ff3322, #ff6fd8, #6fffe9);
+        color: #fff;
+        font-size: 1rem;
+        box-shadow: 0 0 30px rgba(255, 111, 216, 0.6);
+      }
+
+      /* Board responsive sizing */
+      .board {
+        width: min(85vw, 400px);
+        height: min(85vw, 400px);
+      }
+
+      /* Overlay toggle */
+      .overlay.active {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body
+    class="font-mono bg-[length:400%_400%] animate-gradient-shift min-h-screen flex flex-col items-center justify-center text-gray-200 overflow-hidden select-none"
+    style="
+      background-image: linear-gradient(
+        -45deg,
+        #0a0a2e,
+        #1a1a4e,
+        #0d2137,
+        #0a0a2e
+      );
+    "
+  >
+    <!-- Header -->
+    <div class="text-center mb-4">
+      <h1
+        class="text-4xl md:text-5xl font-black tracking-widest bg-clip-text text-transparent"
+        style="
+          background-image: linear-gradient(90deg, #ff6fd8, #ffd86f, #6fffe9);
+        "
+      >
+        2048
+      </h1>
+    </div>
+
+    <!-- Score Bar -->
+    <div class="flex gap-4 mb-3 justify-center flex-wrap">
+      <div
+        class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2 px-5 text-center min-w-[100px]"
+      >
+        <div class="text-[0.7rem] uppercase tracking-widest text-gray-400">
+          Score
+        </div>
+        <div class="text-xl font-bold text-[#ffd86f]" id="score">0</div>
+      </div>
+      <div
+        class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2 px-5 text-center min-w-[100px]"
+      >
+        <div class="text-[0.7rem] uppercase tracking-widest text-gray-400">
+          Best
+        </div>
+        <div class="text-xl font-bold text-[#ffd86f]" id="best">0</div>
+      </div>
+    </div>
+
+    <!-- Board -->
+    <div
+      id="board"
+      class="board grid grid-cols-4 grid-rows-4 gap-2 bg-white/[0.06] border-2 border-white/10 rounded-2xl p-2.5 touch-none"
+    ></div>
+
+    <!-- Buttons -->
+    <div class="flex gap-2.5 mt-3.5 flex-wrap justify-center">
+      <button
+        id="newGameBtn"
+        class="py-2.5 px-5 border border-white/20 rounded-xl bg-white/[0.08] text-gray-200 font-mono text-sm cursor-pointer transition-all duration-200 hover:bg-white/[0.15] hover:-translate-y-0.5"
+      >
+        New Game
+      </button>
+      <a
+        href="./index.html"
+        class="py-2.5 px-5 border border-white/20 rounded-xl bg-white/[0.08] text-gray-200 font-mono text-sm cursor-pointer transition-all duration-200 hover:bg-white/[0.15] hover:-translate-y-0.5 no-underline"
+      >
+        Home
+      </a>
+      <button
+        id="helpBtn"
+        class="py-2.5 px-5 border border-white/20 rounded-xl bg-white/[0.08] text-gray-200 font-mono text-sm cursor-pointer transition-all duration-200 hover:bg-white/[0.15] hover:-translate-y-0.5"
+      >
+        How to Play
+      </button>
+    </div>
+
+    <!-- How To Play -->
+    <section
+      id="howToPlayPanel"
+      class="hidden mt-4 w-[min(92vw,520px)] bg-white/[0.06] border border-white/[0.15] rounded-2xl p-4"
+    >
+      <h2
+        class="text-sm md:text-base font-bold tracking-widest text-[#6fffe9] uppercase mb-2"
+      >
+        How To Play
+      </h2>
+      <ul
+        class="text-xs md:text-sm text-gray-300 space-y-1.5 leading-relaxed list-disc pl-5"
+      >
+        <li>
+          Use <span class="text-[#ffd86f] font-bold">Arrow Keys</span> on
+          keyboard, or swipe/drag on the board.
+        </li>
+        <li>Every move slides all tiles in one direction.</li>
+        <li>
+          When two tiles with the same number touch, they merge into one bigger
+          tile.
+        </li>
+        <li>
+          Reach the <span class="text-[#ffd86f] font-bold">2048</span> tile to
+          win, then press
+          <span class="text-[#ffd86f] font-bold">Keep Going</span> to continue.
+        </li>
+        <li>The game ends when the board is full and no merge is possible.</li>
+      </ul>
+      <p class="text-xs md:text-sm text-gray-400 mt-3">
+        Quick demo: start by combining
+        <span class="text-[#ffd86f] font-bold">2 + 2 = 4</span>, then
+        <span class="text-[#ffd86f] font-bold">4 + 4 = 8</span>, and keep
+        doubling while keeping one corner organized.
+      </p>
+    </section>
+
+    <!-- Intro How To Play Overlay -->
+    <div
+      id="introOverlay"
+      class="overlay hidden fixed inset-0 bg-black/80 z-[110] items-center justify-center"
+    >
+      <div
+        class="bg-[#1a1a4e] border-2 border-white/[0.15] rounded-2xl p-6 md:p-8 text-center max-w-[420px] mx-4"
+      >
+        <h2 class="text-2xl font-bold mb-2 text-[#6fffe9]">How to Play 2048</h2>
+        <p class="text-sm text-gray-300 leading-relaxed mb-4">
+          Slide tiles to combine same numbers. Build bigger values and reach
+          <span class="text-[#ffd86f] font-bold">2048</span>.
+        </p>
+        <div class="text-xs text-gray-400 mb-5">
+          Glimpse: <span class="text-[#ffd86f] font-bold">2 + 2 = 4</span>, then
+          <span class="text-[#ffd86f] font-bold">4 + 4 = 8</span>...
+        </div>
+        <div class="flex gap-2.5 justify-center flex-wrap">
+          <button
+            id="introContinueBtn"
+            class="py-2.5 px-5 border border-white/20 rounded-xl bg-white/[0.08] text-gray-200 font-mono text-sm cursor-pointer transition-all duration-200 hover:bg-white/[0.15] hover:-translate-y-0.5"
+          >
+            Continue
+          </button>
+          <button
+            id="introHelpBtn"
+            class="py-2.5 px-5 border border-white/20 rounded-xl bg-white/[0.08] text-gray-200 font-mono text-sm cursor-pointer transition-all duration-200 hover:bg-white/[0.15] hover:-translate-y-0.5"
+          >
+            Help
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div
+      id="gameOverOverlay"
+      class="overlay hidden fixed inset-0 bg-black/75 z-[100] items-center justify-center"
+    >
+      <div
+        class="bg-[#1a1a4e] border-2 border-white/[0.15] rounded-2xl p-10 text-center max-w-[340px]"
+      >
+        <h2 class="text-3xl font-bold mb-2 text-[#ff5533]">Game Over</h2>
+        <p class="mb-5 text-gray-400">
+          Final Score: <strong id="finalScore">0</strong>
+        </p>
+        <button
+          id="retryBtn"
+          class="py-2.5 px-5 border border-white/20 rounded-xl bg-white/[0.08] text-gray-200 font-mono text-sm cursor-pointer transition-all duration-200 hover:bg-white/[0.15] hover:-translate-y-0.5"
+        >
+          Play Again
+        </button>
+        <br />
+        <a
+          href="./index.html"
+          class="inline-block mt-2.5 text-[#6fffe9] no-underline text-sm hover:underline"
+        >
+          Back to Game Hub
+        </a>
+      </div>
+    </div>
+
+    <!-- Win Overlay -->
+    <div
+      id="winOverlay"
+      class="overlay hidden fixed inset-0 bg-black/75 z-[100] items-center justify-center"
+    >
+      <div
+        class="bg-[#1a1a4e] border-2 border-white/[0.15] rounded-2xl p-10 text-center max-w-[340px]"
+      >
+        <h2 class="text-3xl font-bold mb-2 text-[#ffd86f]">You Win!</h2>
+        <p class="mb-5 text-gray-400">You reached 2048! Keep going?</p>
+        <div class="flex gap-2.5 justify-center">
+          <button
+            id="keepGoingBtn"
+            class="py-2.5 px-5 border border-white/20 rounded-xl bg-white/[0.08] text-gray-200 font-mono text-sm cursor-pointer transition-all duration-200 hover:bg-white/[0.15] hover:-translate-y-0.5"
+          >
+            Keep Going
+          </button>
+          <button
+            id="newAfterWinBtn"
+            class="py-2.5 px-5 border border-white/20 rounded-xl bg-white/[0.08] text-gray-200 font-mono text-sm cursor-pointer transition-all duration-200 hover:bg-white/[0.15] hover:-translate-y-0.5"
+          >
+            New Game
+          </button>
+        </div>
+        <br />
+        <a
+          href="./index.html"
+          class="inline-block mt-2.5 text-[#6fffe9] no-underline text-sm hover:underline"
+        >
+          Back to Game Hub
+        </a>
+      </div>
+    </div>
+
+    <script>
+      const SIZE = 4;
+      let grid = [];
+      let score = 0;
+      let best = parseInt(localStorage.getItem("2048_best") || "0");
+      let hasWon = false;
+      let keepPlaying = false;
+      let introActive = true;
+
+      const boardEl = document.getElementById("board");
+      const scoreEl = document.getElementById("score");
+      const bestEl = document.getElementById("best");
+      const gameOverOverlay = document.getElementById("gameOverOverlay");
+      const winOverlay = document.getElementById("winOverlay");
+      const finalScoreEl = document.getElementById("finalScore");
+      const introOverlay = document.getElementById("introOverlay");
+      const howToPlayPanel = document.getElementById("howToPlayPanel");
+
+      bestEl.textContent = best;
+
+      function init() {
+        grid = Array.from({ length: SIZE }, () => Array(SIZE).fill(0));
+        score = 0;
+        hasWon = false;
+        keepPlaying = false;
+        scoreEl.textContent = 0;
+        gameOverOverlay.classList.remove("active");
+        winOverlay.classList.remove("active");
+        addRandom();
+        addRandom();
+        render();
+      }
+
+      function addRandom() {
+        const empty = [];
+        for (let r = 0; r < SIZE; r++)
+          for (let c = 0; c < SIZE; c++)
+            if (grid[r][c] === 0) empty.push({ r, c });
+        if (empty.length === 0) return;
+        const { r, c } = empty[Math.floor(Math.random() * empty.length)];
+        grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+        render(r, c);
+      }
+
+      function render(newR = -1, newC = -1, mergedCells = []) {
+        boardEl.innerHTML = "";
+        for (let r = 0; r < SIZE; r++) {
+          for (let c = 0; c < SIZE; c++) {
+            const tile = document.createElement("div");
+            const val = grid[r][c];
+            let cls =
+              "tile rounded-xl flex items-center justify-center font-black transition-all duration-100 relative ";
+            if (val === 0) cls += "tile-0";
+            else if (val <= 2048) cls += `tile-${val}`;
+            else cls += "tile-super";
+
+            if (r === newR && c === newC) cls += " animate-pop";
+            if (mergedCells.some((m) => m.r === r && m.c === c))
+              cls += " animate-merge";
+
+            tile.className = cls;
+            tile.textContent = val || "";
+            boardEl.appendChild(tile);
+          }
+        }
+      }
+
+      function slide(row) {
+        let arr = row.filter((v) => v !== 0);
+        const merged = [];
+        for (let i = 0; i < arr.length - 1; i++) {
+          if (arr[i] === arr[i + 1]) {
+            arr[i] *= 2;
+            score += arr[i];
+            merged.push(i);
+            arr[i + 1] = 0;
+          }
+        }
+        arr = arr.filter((v) => v !== 0);
+        while (arr.length < SIZE) arr.push(0);
+        return { result: arr, merged };
+      }
+
+      function move(dir) {
+        if (introActive) return;
+
+        let moved = false;
+        const mergedCells = [];
+        const oldGrid = grid.map((r) => [...r]);
+
+        if (dir === "left" || dir === "right") {
+          for (let r = 0; r < SIZE; r++) {
+            let row = [...grid[r]];
+            if (dir === "right") row.reverse();
+            const { result, merged } = slide(row);
+            if (dir === "right") {
+              result.reverse();
+              merged.forEach((i) => mergedCells.push({ r, c: SIZE - 1 - i }));
+            } else {
+              merged.forEach((i) => mergedCells.push({ r, c: i }));
+            }
+            grid[r] = result;
+          }
+        } else {
+          for (let c = 0; c < SIZE; c++) {
+            let col = [];
+            for (let r = 0; r < SIZE; r++) col.push(grid[r][c]);
+            if (dir === "down") col.reverse();
+            const { result, merged } = slide(col);
+            if (dir === "down") {
+              result.reverse();
+              merged.forEach((i) => mergedCells.push({ r: SIZE - 1 - i, c }));
+            } else {
+              merged.forEach((i) => mergedCells.push({ r: i, c }));
+            }
+            for (let r = 0; r < SIZE; r++) grid[r][c] = result[r];
+          }
+        }
+
+        for (let r = 0; r < SIZE; r++)
+          for (let c = 0; c < SIZE; c++)
+            if (grid[r][c] !== oldGrid[r][c]) moved = true;
+
+        if (moved) {
+          scoreEl.textContent = score;
+          if (score > best) {
+            best = score;
+            bestEl.textContent = best;
+            localStorage.setItem("2048_best", best);
+          }
+          addRandom();
+
+          if (!hasWon && !keepPlaying) {
+            for (let r = 0; r < SIZE; r++)
+              for (let c = 0; c < SIZE; c++)
+                if (grid[r][c] === 2048) {
+                  hasWon = true;
+                  winOverlay.classList.add("active");
+                  return;
+                }
+          }
+
+          if (isGameOver()) {
+            finalScoreEl.textContent = score;
+            gameOverOverlay.classList.add("active");
+          }
+        }
+      }
+
+      function isGameOver() {
+        for (let r = 0; r < SIZE; r++)
+          for (let c = 0; c < SIZE; c++) {
+            if (grid[r][c] === 0) return false;
+            if (c < SIZE - 1 && grid[r][c] === grid[r][c + 1]) return false;
+            if (r < SIZE - 1 && grid[r][c] === grid[r + 1][c]) return false;
+          }
+        return true;
+      }
+
+      // Keyboard controls
+      document.addEventListener("keydown", (e) => {
+        const map = {
+          ArrowUp: "up",
+          ArrowDown: "down",
+          ArrowLeft: "left",
+          ArrowRight: "right",
+        };
+        if (introActive && map[e.key]) {
+          e.preventDefault();
+          return;
+        }
+        if (map[e.key]) {
+          e.preventDefault();
+          move(map[e.key]);
+        }
+      });
+
+      // Touch / swipe controls
+      let touchStartX = 0,
+        touchStartY = 0;
+      boardEl.addEventListener(
+        "touchstart",
+        (e) => {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        },
+        { passive: true },
+      );
+
+      boardEl.addEventListener(
+        "touchend",
+        (e) => {
+          if (introActive) return;
+          const dx = e.changedTouches[0].clientX - touchStartX;
+          const dy = e.changedTouches[0].clientY - touchStartY;
+          const absDx = Math.abs(dx),
+            absDy = Math.abs(dy);
+          if (Math.max(absDx, absDy) < 30) return;
+          if (absDx > absDy) move(dx > 0 ? "right" : "left");
+          else move(dy > 0 ? "down" : "up");
+        },
+        { passive: true },
+      );
+
+      // Mouse drag controls
+      let mouseDown = false,
+        mouseStartX = 0,
+        mouseStartY = 0;
+      boardEl.addEventListener("mousedown", (e) => {
+        mouseDown = true;
+        mouseStartX = e.clientX;
+        mouseStartY = e.clientY;
+      });
+      document.addEventListener("mouseup", (e) => {
+        if (!mouseDown) return;
+        mouseDown = false;
+        if (introActive) return;
+        const dx = e.clientX - mouseStartX;
+        const dy = e.clientY - mouseStartY;
+        const absDx = Math.abs(dx),
+          absDy = Math.abs(dy);
+        if (Math.max(absDx, absDy) < 30) return;
+        if (absDx > absDy) move(dx > 0 ? "right" : "left");
+        else move(dy > 0 ? "down" : "up");
+      });
+
+      // Buttons
+      document.getElementById("newGameBtn").addEventListener("click", init);
+      document.getElementById("retryBtn").addEventListener("click", init);
+      document.getElementById("newAfterWinBtn").addEventListener("click", init);
+      document.getElementById("keepGoingBtn").addEventListener("click", () => {
+        keepPlaying = true;
+        winOverlay.classList.remove("active");
+      });
+      document.getElementById("helpBtn").addEventListener("click", () => {
+        howToPlayPanel.classList.remove("hidden");
+        howToPlayPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      document
+        .getElementById("introContinueBtn")
+        .addEventListener("click", () => {
+          introActive = false;
+          introOverlay.classList.remove("active");
+        });
+
+      document.getElementById("introHelpBtn").addEventListener("click", () => {
+        introActive = false;
+        introOverlay.classList.remove("active");
+        howToPlayPanel.classList.remove("hidden");
+        howToPlayPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+
+      init();
+      introOverlay.classList.add("active");
+    </script>
+  </body>
+</html>
