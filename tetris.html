@@ -10,15 +10,15 @@
       tailwind.config = {
         theme: {
           extend: {
-            fontFamily: { mono: ['"Courier New"', 'monospace'] },
+            fontFamily: { mono: ['"Courier New"', "monospace"] },
             keyframes: {
               gradientShift: {
-                '0%, 100%': { backgroundPosition: '0% 50%' },
-                '50%': { backgroundPosition: '100% 50%' },
+                "0%, 100%": { backgroundPosition: "0% 50%" },
+                "50%": { backgroundPosition: "100% 50%" },
               },
             },
             animation: {
-              'gradient-shift': 'gradientShift 12s ease infinite',
+              "gradient-shift": "gradientShift 12s ease infinite",
             },
           },
         },
@@ -31,30 +31,49 @@
         border-radius: 10px;
         background: rgba(0, 0, 0, 0.4);
       }
-      #nextCanvas { width: 100px; height: 80px; }
+      #tetris {
+        width: min(250px, 72vw);
+        height: auto;
+        touch-action: none;
+      }
+      #nextCanvas {
+        width: 100px;
+        height: 80px;
+      }
 
       /* Overlay toggle */
-      .overlay.active { display: flex; }
+      .overlay.active {
+        display: flex;
+      }
 
-      /* Mobile control grid sizing */
-      .ctrl-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 52px);
-        grid-template-rows: repeat(2, 52px);
-        gap: 6px;
-        justify-content: center;
+      @media (max-width: 640px) {
+        body {
+          justify-content: flex-start;
+          padding: 14px 10px 18px;
+          overflow-y: auto;
+        }
       }
     </style>
   </head>
   <body
-    class="font-mono bg-[length:400%_400%] animate-gradient-shift min-h-screen flex flex-col items-center justify-center text-gray-200 overflow-hidden select-none"
-    style="background-image: linear-gradient(-45deg, #0a0a2e, #1a1a4e, #0d2137, #0a0a2e)"
+    class="font-mono bg-[length:400%_400%] animate-gradient-shift min-h-screen flex flex-col items-center justify-center text-gray-200 overflow-x-hidden overflow-y-auto select-none"
+    style="
+      background-image: linear-gradient(
+        -45deg,
+        #0a0a2e,
+        #1a1a4e,
+        #0d2137,
+        #0a0a2e
+      );
+    "
   >
     <!-- Header -->
     <div class="mb-2.5">
       <h1
         class="text-4xl font-black tracking-widest text-center bg-clip-text text-transparent"
-        style="background-image: linear-gradient(90deg, #ff6fd8, #ffd86f, #6fffe9)"
+        style="
+          background-image: linear-gradient(90deg, #ff6fd8, #ffd86f, #6fffe9);
+        "
       >
         TETRIS
       </h1>
@@ -65,22 +84,53 @@
       <canvas id="tetris" width="250" height="500"></canvas>
 
       <!-- Side Panel -->
-      <div class="flex flex-col gap-3 min-w-[120px] max-sm:flex-row max-sm:flex-wrap max-sm:justify-center">
-        <div class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2.5 px-3.5 text-center">
-          <div class="text-[0.65rem] uppercase tracking-widest text-gray-400 mb-1">Score</div>
+      <div
+        class="flex flex-col gap-3 min-w-[120px] max-sm:flex-row max-sm:flex-wrap max-sm:justify-center"
+      >
+        <div
+          class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2.5 px-3.5 text-center"
+        >
+          <div
+            class="text-[0.65rem] uppercase tracking-widest text-gray-400 mb-1"
+          >
+            Score
+          </div>
           <div class="text-xl font-bold text-[#ffd86f]" id="score">0</div>
         </div>
-        <div class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2.5 px-3.5 text-center">
-          <div class="text-[0.65rem] uppercase tracking-widest text-gray-400 mb-1">Level</div>
+        <div
+          class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2.5 px-3.5 text-center"
+        >
+          <div
+            class="text-[0.65rem] uppercase tracking-widest text-gray-400 mb-1"
+          >
+            Level
+          </div>
           <div class="text-xl font-bold text-[#ffd86f]" id="level">1</div>
         </div>
-        <div class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2.5 px-3.5 text-center">
-          <div class="text-[0.65rem] uppercase tracking-widest text-gray-400 mb-1">Lines</div>
+        <div
+          class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2.5 px-3.5 text-center"
+        >
+          <div
+            class="text-[0.65rem] uppercase tracking-widest text-gray-400 mb-1"
+          >
+            Lines
+          </div>
           <div class="text-xl font-bold text-[#ffd86f]" id="lines">0</div>
         </div>
-        <div class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2.5 px-3.5 text-center max-sm:min-w-[80px]">
-          <div class="text-[0.65rem] uppercase tracking-widest text-gray-400 mb-1">Next</div>
-          <canvas id="nextCanvas" width="100" height="80" class="block mx-auto"></canvas>
+        <div
+          class="bg-white/[0.08] border border-white/[0.15] rounded-xl py-2.5 px-3.5 text-center max-sm:min-w-[80px]"
+        >
+          <div
+            class="text-[0.65rem] uppercase tracking-widest text-gray-400 mb-1"
+          >
+            Next
+          </div>
+          <canvas
+            id="nextCanvas"
+            width="100"
+            height="80"
+            class="block mx-auto"
+          ></canvas>
         </div>
       </div>
     </div>
@@ -107,46 +157,18 @@
       </a>
     </div>
 
-    <!-- Mobile D-pad Controls -->
-    <div class="hidden max-sm:flex mt-3.5 gap-1.5 justify-center">
-      <div class="ctrl-grid">
-        <div class="invisible"></div>
-        <div
-          class="w-[52px] h-[52px] border border-white/20 rounded-xl bg-white/10 text-gray-200 text-xl flex items-center justify-center cursor-pointer active:bg-white/25"
-          data-action="rotate"
-        >&#x21BB;</div>
-        <div class="invisible"></div>
-        <div
-          class="w-[52px] h-[52px] border border-white/20 rounded-xl bg-white/10 text-gray-200 text-xl flex items-center justify-center cursor-pointer active:bg-white/25"
-          data-action="left"
-        >&#x25C0;</div>
-        <div
-          class="w-[52px] h-[52px] border border-white/20 rounded-xl bg-white/10 text-gray-200 text-xl flex items-center justify-center cursor-pointer active:bg-white/25"
-          data-action="down"
-        >&#x25BC;</div>
-        <div
-          class="w-[52px] h-[52px] border border-white/20 rounded-xl bg-white/10 text-gray-200 text-xl flex items-center justify-center cursor-pointer active:bg-white/25"
-          data-action="right"
-        >&#x25B6;</div>
-      </div>
-      <div class="flex items-end ml-3">
-        <div
-          class="w-20 h-[52px] border border-white/20 rounded-xl bg-white/10 text-gray-200 text-xs font-bold flex items-center justify-center cursor-pointer active:bg-white/25"
-          data-action="drop"
-        >
-          DROP
-        </div>
-      </div>
-    </div>
-
     <!-- Game Over Overlay -->
     <div
       id="gameOverOverlay"
       class="overlay hidden fixed inset-0 bg-black/75 z-[100] items-center justify-center"
     >
-      <div class="bg-[#1a1a4e] border-2 border-white/[0.15] rounded-2xl p-9 text-center max-w-[320px]">
+      <div
+        class="bg-[#1a1a4e] border-2 border-white/[0.15] rounded-2xl p-9 text-center max-w-[320px]"
+      >
         <h2 class="text-3xl font-bold mb-2 text-[#ff5533]">Game Over</h2>
-        <p class="mb-5 text-gray-400">Score: <strong id="finalScore">0</strong></p>
+        <p class="mb-5 text-gray-400">
+          Score: <strong id="finalScore">0</strong>
+        </p>
         <button
           id="retryBtn"
           class="py-2 px-5 border border-white/20 rounded-xl bg-white/[0.08] text-gray-200 font-mono text-sm cursor-pointer transition-all duration-200 hover:bg-white/[0.15] hover:-translate-y-0.5"
@@ -154,7 +176,10 @@
           Play Again
         </button>
         <br />
-        <a href="./index.html" class="inline-block mt-2.5 text-[#6fffe9] no-underline text-sm hover:underline">
+        <a
+          href="./index.html"
+          class="inline-block mt-2.5 text-[#6fffe9] no-underline text-sm hover:underline"
+        >
           Back to Game Hub
         </a>
       </div>
@@ -458,6 +483,18 @@
         }
       }
 
+      function rotateCurrent() {
+        const rotated = rotate(current);
+        if (valid(rotated, currentX, currentY)) current = rotated;
+        else if (valid(rotated, currentX - 1, currentY)) {
+          current = rotated;
+          currentX--;
+        } else if (valid(rotated, currentX + 1, currentY)) {
+          current = rotated;
+          currentX++;
+        }
+      }
+
       // --- Controls ---
       document.addEventListener("keydown", (e) => {
         if (gameOver || !started) return;
@@ -482,15 +519,7 @@
             break;
           case "ArrowUp":
             e.preventDefault();
-            const rotated = rotate(current);
-            if (valid(rotated, currentX, currentY)) current = rotated;
-            else if (valid(rotated, currentX - 1, currentY)) {
-              current = rotated;
-              currentX--;
-            } else if (valid(rotated, currentX + 1, currentY)) {
-              current = rotated;
-              currentX++;
-            }
+            rotateCurrent();
             break;
           case " ":
             e.preventDefault();
@@ -509,36 +538,60 @@
         checkLevel();
       });
 
-      // Mobile controls
-      document.querySelectorAll("[data-action]").forEach((btn) => {
-        btn.addEventListener("touchstart", (e) => {
+      // Mobile swipe controls
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchMoved = false;
+      const SWIPE_THRESHOLD = 28;
+
+      canvas.addEventListener(
+        "touchstart",
+        (e) => {
+          if (!e.touches.length) return;
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+          touchMoved = false;
+        },
+        { passive: true },
+      );
+
+      canvas.addEventListener(
+        "touchmove",
+        (e) => {
+          touchMoved = true;
           e.preventDefault();
-          if (gameOver || !started || paused) return;
-          const action = btn.dataset.action;
-          if (action === "left" && valid(current, currentX - 1, currentY))
-            currentX--;
-          if (action === "right" && valid(current, currentX + 1, currentY))
-            currentX++;
-          if (action === "down" && valid(current, currentX, currentY + 1)) {
+        },
+        { passive: false },
+      );
+
+      canvas.addEventListener("touchend", (e) => {
+        if (gameOver || !started || paused) return;
+
+        const touch = e.changedTouches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        const absX = Math.abs(dx);
+        const absY = Math.abs(dy);
+
+        if (!touchMoved || (absX < SWIPE_THRESHOLD && absY < SWIPE_THRESHOLD)) {
+          rotateCurrent();
+        } else if (absX > absY) {
+          if (dx > 0 && valid(current, currentX + 1, currentY)) currentX++;
+          if (dx < 0 && valid(current, currentX - 1, currentY)) currentX--;
+        } else {
+          if (dy < 0) {
+            rotateCurrent();
+          } else if (dy > SWIPE_THRESHOLD * 2) {
+            hardDrop();
+          } else if (valid(current, currentX, currentY + 1)) {
             currentY++;
             score += 1;
             updateUI();
           }
-          if (action === "rotate") {
-            const rotated = rotate(current);
-            if (valid(rotated, currentX, currentY)) current = rotated;
-            else if (valid(rotated, currentX - 1, currentY)) {
-              current = rotated;
-              currentX--;
-            } else if (valid(rotated, currentX + 1, currentY)) {
-              current = rotated;
-              currentX++;
-            }
-          }
-          if (action === "drop") hardDrop();
-          draw();
-          checkLevel();
-        });
+        }
+
+        draw();
+        checkLevel();
       });
 
       // Buttons
