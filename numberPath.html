@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Number Path Flow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-slate-950 text-slate-100">
+    <main class="mx-auto min-h-screen w-full max-w-md px-4 py-5 md:hidden">
+      <header
+        class="mb-4 rounded-2xl bg-slate-900/80 p-4 shadow-lg shadow-slate-900/60"
+      >
+        <p class="text-xs uppercase tracking-[0.25em] text-emerald-300">
+          Mobile Number Path
+        </p>
+        <h1 class="mt-1 text-2xl font-bold">Connect in Ascending Order</h1>
+        <p class="mt-2 text-sm text-slate-300">
+          Swipe from checkpoint
+          <span class="font-semibold text-emerald-300">1</span> to the last
+          number. Fill every tile. Tap any reached checkpoint number to undo
+          back to it.
+        </p>
+      </header>
+
+      <section class="mb-4 grid grid-cols-3 gap-2 text-center text-xs">
+        <div class="rounded-xl bg-slate-900 p-3">
+          <p class="text-slate-400">Level</p>
+          <p id="levelLabel" class="text-lg font-bold text-white">1</p>
+        </div>
+        <div class="rounded-xl bg-slate-900 p-3">
+          <p class="text-slate-400">Progress</p>
+          <p id="progressLabel" class="text-lg font-bold text-white">0%</p>
+        </div>
+        <div class="rounded-xl bg-slate-900 p-3">
+          <p class="text-slate-400">Checkpoints</p>
+          <p id="checkpointLabel" class="text-lg font-bold text-white">1 / 1</p>
+        </div>
+      </section>
+
+      <section class="rounded-2xl bg-slate-900 p-3 shadow-lg shadow-black/40">
+        <div class="relative mx-auto aspect-square w-full">
+          <div
+            id="board"
+            class="relative z-20 grid h-full w-full touch-none gap-1 rounded-xl bg-slate-800 p-1"
+            style="grid-template-columns: repeat(4, minmax(0, 1fr))"
+            aria-label="Number path game board"
+          ></div>
+        </div>
+        <p
+          id="status"
+          class="mt-3 text-center text-sm font-medium text-emerald-300"
+        >
+          Find checkpoint 1 to start.
+        </p>
+      </section>
+
+      <div class="mt-4 flex gap-2">
+        <button
+          id="newPatternBtn"
+          class="flex-1 rounded-xl bg-indigo-500 px-3 py-3 text-sm font-semibold text-white active:scale-[0.99]"
+        >
+          New Pattern
+        </button>
+        <button
+          id="restartLevelBtn"
+          class="flex-1 rounded-xl bg-emerald-500 px-3 py-3 text-sm font-semibold text-slate-950 active:scale-[0.99]"
+        >
+          Restart Level
+        </button>
+      </div>
+    </main>
+
+    <section
+      class="hidden min-h-screen items-center justify-center px-6 text-center md:flex"
+    >
+      <div class="max-w-md rounded-2xl bg-slate-900 p-8">
+        <h2 class="text-2xl font-bold text-emerald-300">Mobile Screen Only</h2>
+        <p class="mt-3 text-slate-300">
+          Open <span class="font-semibold">numberPath.html</span> on your phone
+          or switch to a mobile viewport to play.
+        </p>
+      </div>
+    </section>
+
+    <script src="numberPath.js"></script>
+  </body>
+</html>
