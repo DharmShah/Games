@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pattern Memory Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body
+    class="bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 min-h-dvh flex items-start lg:items-center justify-center p-3 sm:p-4 lg:p-6 overflow-x-hidden"
+  >
+    <div
+      class="w-full max-w-7xl bg-white/95 backdrop-blur rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8"
+    >
+      <!-- Header -->
+      <div class="text-center mb-6 lg:mb-8">
+        <h1
+          class="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3 lg:mb-4"
+        >
+          Pattern Memory Game
+        </h1>
+        <div class="grid grid-cols-3 gap-3 sm:gap-4">
+          <div
+            class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl p-3 sm:p-4"
+          >
+            <p class="text-gray-600 text-xs sm:text-sm font-semibold">Level</p>
+            <p class="text-2xl sm:text-3xl font-bold text-blue-600" id="level">
+              1
+            </p>
+          </div>
+          <div
+            class="bg-gradient-to-br from-purple-100 to-purple-200 rounded-2xl p-3 sm:p-4"
+          >
+            <p class="text-gray-600 text-xs sm:text-sm font-semibold">
+              Pattern
+            </p>
+            <p
+              class="text-2xl sm:text-3xl font-bold text-purple-600"
+              id="patternLength"
+            >
+              3
+            </p>
+          </div>
+          <div
+            class="bg-gradient-to-br from-pink-100 to-pink-200 rounded-2xl p-3 sm:p-4"
+          >
+            <p class="text-gray-600 text-xs sm:text-sm font-semibold">Score</p>
+            <p class="text-2xl sm:text-3xl font-bold text-pink-600" id="score">
+              0
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,0.85fr)] lg:items-start"
+      >
+        <!-- Board -->
+        <section class="space-y-4">
+          <!-- Status -->
+          <p
+            id="status"
+            class="text-center text-base sm:text-lg font-bold p-3 sm:p-4 bg-blue-100 border-l-4 border-blue-500 text-blue-800 rounded-xl"
+          >
+            Click "Start Game" to begin!
+          </p>
+
+          <div
+            class="rounded-3xl bg-gradient-to-br from-purple-50 to-pink-50 p-3 sm:p-4 shadow-inner"
+          >
+            <div class="flex justify-center overflow-hidden">
+              <div id="boxesContainer" class="grid gap-2 sm:gap-3 lg:gap-4">
+                <!-- Boxes will be generated here -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Side Panel -->
+        <aside class="space-y-4">
+          <div
+            class="flex gap-3 sm:gap-4 justify-center lg:justify-start flex-wrap lg:flex-col"
+          >
+            <button
+              id="startBtn"
+              class="w-full sm:w-auto lg:w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:shadow-lg hover:scale-[1.02] transform transition-all"
+            >
+              Start Game
+            </button>
+            <button
+              id="resetBtn"
+              class="w-full sm:w-auto lg:w-full px-6 py-3 bg-gray-200 text-gray-800 font-bold rounded-xl hover:bg-gray-300 hover:scale-[1.02] transform transition-all border-2 border-gray-400"
+            >
+              Reset Game
+            </button>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script src="patternMemory.js"></script>
+  </body>
+</html>
